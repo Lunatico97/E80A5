@@ -5,6 +5,44 @@ Assembler::Assembler()
     loadOpcodeLookup();
 }
 
+u16 Assembler::assemble(MMU& mmu, const std::string& filename)
+{
+    u16 origin = 0x0000;
+    u16 counter = 0x0000;
+    std::stringstream ss(Utils::readTextFromFile(filename.c_str()));
+    std::string line;
+
+    while (std::getline(ss, line)) 
+    { 
+        size_t commentPos = line.find(';');
+        if (commentPos != std::string::npos) {
+            line = line.substr(0, commentPos);
+        }
+
+        line = Utils::trim(line);
+        if (!line.empty()) 
+        {
+            if (counter == 0 && line.rfind("ORG ", 0) == 0) 
+            { 
+                origin = parseHexStrToVal(line.substr(4));
+                counter = origin; 
+            }
+            else
+            {
+                Utils::logU16("CT", counter);
+                HEX hex = parseToMachineCode(line);
+                for(int i=0; i<IL_MAP[hex.h8[0]]; i++)
+                {
+                    mmu.load_mem(counter++, hex.h8[i]);
+                }
+                Utils::logHEX(hex);
+            }            
+        }
+    }
+
+    return origin;
+}
+
 OPCODE Assembler::parseMnemonicToOpcode(const std::string& hexstr)
 {
     if(opcode_map.find(hexstr) != opcode_map.end()) return opcode_map[hexstr];
@@ -23,7 +61,7 @@ u16 Assembler::parseHexStrToVal(const std::string& hexstr)
     return value;
 }
 
-HEX Assembler::assemble(const std::string& instruction) {
+HEX Assembler::parseToMachineCode(const std::string& instruction) {
     const char* mnemonic = instruction.c_str();
     OPCODE opcode = parseMnemonicToOpcode(mnemonic);
     std::string operand_part;
@@ -54,13 +92,14 @@ HEX Assembler::assemble(const std::string& instruction) {
         // Parse operands
         if (!operand_part.empty()) 
         {
-            u16 operand = static_cast<u16>(parseHexStrToVal(operand_part));
-            return {opcode.value, static_cast<u8>(operand & 0xFF), operand};
+            u16 operand = parseHexStrToVal(operand_part);
+            if(opcode.bytes == 2) return {opcode.value, static_cast<u8>(operand & 0xFF), 0x00};
+            return {opcode.value, static_cast<u8>(operand & 0xFF), static_cast<u8>((operand >> 8) & 0xFF)};
         }
         else throw std::runtime_error("Operands required: " + instruction);
     }
 
-    return {opcode.value, 0x00, 0x0000}; 
+    return {opcode.value, '\0', '\0'}; 
 }
 
 void Assembler::loadOpcodeLookup() 

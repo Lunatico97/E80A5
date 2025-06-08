@@ -8,11 +8,17 @@ class MMU
 {
     public:
         MMU();
+        void load_mem(u16 address, u8 value);
+        u8 fetch_mem(u16 address);
+
+        // Program Counter
+        void init_pc(u16 value);
+        u16 load_pc();
 
         // Accumulator
-        void lda(u8 value);
+        void lda(u16 value);
         void sta(u16 value);
-        void ldax(REG r, u16 value);
+        void ldax(REG r);
         void stax(REG r);
 
         // Register
