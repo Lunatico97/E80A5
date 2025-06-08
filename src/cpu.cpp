@@ -2,43 +2,67 @@
 
 CPU::CPU(){}
 
-void CPU::run_instruction(const std::string& instruction)
+void CPU::create_machine_code(const std::string& filename)
 {
     try
     {
-        HEX output = asmb.assemble(instruction);
-        decode(output);
-        Utils::logU8("A", mmu.tapU8(A));
-        Utils::logU8("H", mmu.tapU8(H));
-        Utils::logU8("L", mmu.tapU8(L));
-        Utils::logU16("PC", mmu.tapU16(PC));
-        Utils::logHEX(output);
+        IREG = asmb.assemble(mmu, filename);
     }
     catch(const std::exception& e)
     {
-        std::cerr << e.what() << '\n';
+        std::cerr << e.what() << std::endl;
     }
+}
+
+void CPU::load_program()
+{
+    HEX current;
+    // Tap origin
+    Utils::logU16("ORG", IREG);
+    std::cout << "\n";
+
+    while(1)
+    {
+        u8 l = IL_MAP[mmu.fetch_mem(IREG)]-1;
+        mmu.init_pc(IREG+l);
+        for(int i=0; i<=l; i++)
+        {
+            current.h8[i] = mmu.fetch_mem(IREG+i); 
+        }
+        decode(current);
+        
+        // Tap registers stepwise
+        Utils::logU16("IR", IREG); 
+        Utils::logU16("PC", mmu.tapU16(PC));
+        Utils::logU8("A", mmu.tapU8(A));
+        Utils::logU8("H", mmu.tapU8(H));
+        Utils::logU8("L", mmu.tapU8(L));
+        Utils::logHEX(current);
+
+        IREG = mmu.load_pc();
+    }    
 }
 
 void CPU::decode(const HEX& hex)
 {
+    u16 h16 = (static_cast<u16>(hex.h8[1]) | (static_cast<u16>(hex.h8[2]) << 8));
     switch(hex.h8[0])
     {
         // Transfers
         case 0x00: break; // NOP
-        case 0x76: break; // HLT
-        case 0x3A: mmu.lda(hex.h8[1]); break;
-        case 0x32: mmu.sta(hex.h16); break;
-        case 0x0A: mmu.ldax(B, hex.h16); break;
-        case 0x1A: mmu.ldax(D, hex.h16); break;
+        case 0x76: exit(0); break; // HLT
+        case 0x3A: mmu.lda(h16); break;
+        case 0x32: mmu.sta(h16); break;
+        case 0x0A: mmu.ldax(B); break;
+        case 0x1A: mmu.ldax(D); break;
         case 0x02: mmu.stax(B); break;
         case 0x12: mmu.stax(D); break;
-        case 0x01: mmu.lxi(B, hex.h16); break;
-        case 0x11: mmu.lxi(D, hex.h16); break;
-        case 0x21: mmu.lxi(H, hex.h16); break;
-        case 0x31: mmu.lxi(S, hex.h16); break;
-        case 0x2A: mmu.lhld(hex.h16); break;
-        case 0x22: mmu.shld(hex.h16); break;
+        case 0x01: mmu.lxi(B, h16); break;
+        case 0x11: mmu.lxi(D, h16); break;
+        case 0x21: mmu.lxi(H, h16); break;
+        case 0x31: mmu.lxi(S, h16); break;
+        case 0x2A: mmu.lhld(h16); break;
+        case 0x22: mmu.shld(h16); break;
         case 0xEB: mmu.xchg(); break;
         case 0xF9: mmu.sphl(); break;
         case 0xE3: mmu.xthl(); break;

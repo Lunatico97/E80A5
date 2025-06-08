@@ -8,14 +8,15 @@ class CPU
 {
     public:
         CPU();
-        void run_instruction(const std::string& instruction);
+        void create_machine_code(const std::string& filename);
+        void load_program();
 
     private:
         void decode(const HEX& hex);
 
         Assembler asmb;
         MMU mmu;
-        u8* IREG;
+        u16 IREG;
 };
 
 #endif

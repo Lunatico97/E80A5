@@ -1,0 +1,9 @@
+ORG 2000H
+LDA 1AH; You can write comments !
+STA 1532H
+INR A
+INR A
+INR A
+STA 1533H
+LHLD 1532H
+HLT; Make sure you halt to avoid infinite loop

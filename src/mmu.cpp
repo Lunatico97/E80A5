@@ -5,9 +5,30 @@ MMU::MMU()
     rb.init();
 }
 
-void MMU::lda(u8 value)
+void MMU::load_mem(u16 address, u8 value)
+{
+    mem.store(address, value);
+}
+
+u8 MMU::fetch_mem(u16 address)
+{
+    return mem.retreive(address);
+}
+
+void MMU::init_pc(u16 loc)
+{
+    rb.loadU16(PC, loc); 
+    inx(PC);
+}
+
+u16 MMU::load_pc()
+{
+    return tapU16(PC);
+}  
+
+void MMU::lda(u16 value)
 {   
-    rb.loadU8(AF, value);
+    rb.loadU8(AF, mem.retreive(value));
 }
 
 void MMU::sta(u16 value)
@@ -15,9 +36,9 @@ void MMU::sta(u16 value)
     mem.store(value, rb.fetchU8(AF));
 }
 
-void MMU::ldax(REG r, u16 value)
+void MMU::ldax(REG r)
 {
-    rb.loadU16(rb.mapToOffset(r), mem.retreive(value));
+    rb.loadU8(AF, mem.retreive(tapU16(r)));
 }
 
 void MMU::stax(REG r)
