@@ -15,9 +15,9 @@ void MMU::sta(u16 value)
     mem.store(value, rb.fetchU8(AF));
 }
 
-void MMU::ldax(u16 value)
+void MMU::ldax(REG r, u16 value)
 {
-    rb.loadU8(AF, mem.retreive(value));
+    rb.loadU16(rb.mapToOffset(r), mem.retreive(value));
 }
 
 void MMU::stax(REG r)
@@ -78,4 +78,9 @@ u8 MMU::tapU8(REG r)
 u16 MMU::tapU16(REG r)
 {
     return rb.fetchU16(rb.mapToOffset(r));
+}
+
+u16 MMU::tapU16(OFF o)
+{
+    return rb.fetchU16(o);
 }
