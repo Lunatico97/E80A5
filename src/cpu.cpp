@@ -4,14 +4,7 @@ CPU::CPU(){}
 
 void CPU::create_machine_code(const std::string& filename)
 {
-    try
-    {
-        IREG = asmb.assemble(mmu, filename);
-    }
-    catch(const std::exception& e)
-    {
-        std::cerr << e.what() << std::endl;
-    }
+    IREG = asmb.assemble(mmu, filename);
 }
 
 void CPU::load_program()
@@ -100,7 +93,16 @@ void CPU::decode(const HEX& hex)
         case 0x1B: mmu.dcx(DE); break;
         case 0x2B: mmu.dcx(HL); break;
         case 0x3B: mmu.dcx(SP); break;
+        
+        // Branching
+        case 0xC3: jmp(h16); break; 
 
         default: break;
     }
+}
+
+void CPU::jmp(u16 address)
+{
+    mmu.init_pc(address);
+    mmu.load_pc();
 }

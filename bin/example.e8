@@ -1,9 +1,8 @@
 ORG 2000H
-LDA 1AH; You can write comments !
-STA 1532H
+LOOP:MVI A, 0AH; You can write comments !
 INR A
 INR A
-INR A
-STA 1533H
-LHLD 1532H
-HLT; Make sure you halt to avoid infinite loop
+DCR A
+DCR A
+JMP LOOP; It is a continuous loop to swing from A to C !
+HLT; Make sure you halt but halt is useless here.

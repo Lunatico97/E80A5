@@ -17,6 +17,7 @@ class Assembler
         OPCODE parseMnemonicToOpcode(const std::string& hexstr);
         u16 parseHexStrToVal(const std::string& hexstr);
 
-        // Opcode hashmap
-        std::map<std::string, OPCODE> opcode_map;
+        // Maps
+        std::map<std::string, u8> opcode_map;
+        std::map<std::string, u16> label_map;
 };

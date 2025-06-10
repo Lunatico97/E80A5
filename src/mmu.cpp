@@ -18,11 +18,11 @@ u8 MMU::fetch_mem(u16 address)
 void MMU::init_pc(u16 loc)
 {
     rb.loadU16(PC, loc); 
-    inx(PC);
 }
 
 u16 MMU::load_pc()
 {
+    inx(PC);
     return tapU16(PC);
 }  
 

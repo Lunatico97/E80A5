@@ -14,6 +14,9 @@ class CPU
     private:
         void decode(const HEX& hex);
 
+        // Branching
+        void jmp(u16 value);
+
         Assembler asmb;
         MMU mmu;
         u16 IREG;
