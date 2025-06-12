@@ -38,7 +38,7 @@ u16 Assembler::assemble(MMU& mmu, const std::string& filename)
                         throw(std::runtime_error("No whitespaces allowed in label !"));
                     else
                     {
-                        label_map[label] = counter;
+                        label_map[label] = counter-1;
                         line.replace(0, pos+1, "");
                     }
                 }
