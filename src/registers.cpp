@@ -22,6 +22,7 @@ OFF Registers::mapToOffset(REG r)
         case E: return DE;
         case H: return HL;
         case L: return HL;
+        case S: return SP;
         default: return WZ;
     }
 }
@@ -56,9 +57,10 @@ void Registers::loadU16(OFF off, u16 value)
     *(BANK+off) = value;
 }
 
-void Registers::inc()
+void Registers::incU8(OFF off, bool ln)
 {
-    *(BANK+AF) += 0x0100;
+    if(!ln) *(BANK+AF) += 0x0100;
+    else *(BANK+off) += 0x0001;
 }
 
 void Registers::incU16(OFF off)
@@ -66,20 +68,13 @@ void Registers::incU16(OFF off)
     *(BANK+off) += 0x0001;
 }
 
-void Registers::dec()
+void Registers::decU8(OFF off, bool ln)
 {
-    *(BANK+AF) -= 0x0100;
+    if(!ln) *(BANK+AF) -= 0x0100;
+    else *(BANK+off) -= 0x0001;
 }
 
 void Registers::decU16(OFF off)
 {
     *(BANK+off) -= 0x0001;
-}
-
-void Registers::print()
-{
-    for(int i=0; i<8; i++)
-    {
-        Utils::logU16(BANK[i]);
-    }  
 }

@@ -12,7 +12,7 @@ enum OFF
 enum REG
 {
     A = 0,
-    F, B, C, D, E, H, L
+    F, B, C, D, E, H, L, S
 };
 
 class Registers
@@ -33,13 +33,10 @@ class Registers
         u16 fetchU16(OFF off);
 
         // Incrementor / Decrementor
-        void inc();
+        void incU8(OFF off, bool ln = false);
         void incU16(OFF off);
-        void dec();
+        void decU8(OFF off, bool ln = false);
         void decU16(OFF off);
-
-        // Log
-        void print();
 
     private:
         // Register Bank
