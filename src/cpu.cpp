@@ -104,5 +104,4 @@ void CPU::decode(const HEX& hex)
 void CPU::jmp(u16 address)
 {
     mmu.init_pc(address);
-    mmu.load_pc();
 }
