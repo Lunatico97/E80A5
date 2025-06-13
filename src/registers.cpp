@@ -60,7 +60,7 @@ void Registers::loadU16(OFF off, u16 value)
 void Registers::incU8(OFF off, bool ln)
 {
     if(!ln) *(BANK+AF) += 0x0100;
-    else *(BANK+off) += 0x0001;
+    else *(BANK+off) = (*(BANK+off) & 0xFF00) | ((*(BANK+off) & 0x00FF) + 0x0001);
 }
 
 void Registers::incU16(OFF off)
@@ -71,7 +71,7 @@ void Registers::incU16(OFF off)
 void Registers::decU8(OFF off, bool ln)
 {
     if(!ln) *(BANK+AF) -= 0x0100;
-    else *(BANK+off) -= 0x0001;
+    else *(BANK+off) = (*(BANK+off) & 0xFF00) | ((*(BANK+off) & 0x00FF) - 0x0001);
 }
 
 void Registers::decU16(OFF off)

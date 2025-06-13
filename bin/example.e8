@@ -1,8 +1,8 @@
      ORG 2000H
-     MVI A, 0AH; You can write comments !
-LOOP:INR A
-     INR A
-     DCR A
-     DCR A
+     MVI C, 0AH; You can write comments !
+LOOP:INR C
+     INR C
+     DCR C
+     DCR C
      JMP LOOP; It is a continuous loop to swing from A to C !
      HLT; Make sure you halt but halt is useless here.

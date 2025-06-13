@@ -27,7 +27,7 @@ void CPU::load_program()
         // Tap registers stepwise
         Utils::logU16("IR", IREG); 
         Utils::logU16("PC", mmu.tapU16(PC));
-        Utils::logU8("A", mmu.tapU8(A));
+        Utils::logU8("C", mmu.tapU8(C));
         Utils::logU8("H", mmu.tapU8(H));
         Utils::logU8("L", mmu.tapU8(L));
         Utils::logHEX(current);
