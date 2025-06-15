@@ -12,6 +12,7 @@ class MMU
         u8 fetch_mem(u16 address);
 
         // Program Counter
+        void init_acc(const u16& value);
         void init_pc(u16 value);
         u16 load_pc();
 

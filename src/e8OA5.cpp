@@ -8,7 +8,7 @@ int main(int argc, char *argv[])
     try
     {
         cpu = new CPU();
-        cpu->create_machine_code("bin/example.e8");
+        cpu->create_machine_code("bin/counter2.e8");
         cpu->load_program();
     }
     catch(const std::exception& e)

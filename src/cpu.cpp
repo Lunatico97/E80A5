@@ -1,6 +1,9 @@
 #include <cpu.hpp>
 
-CPU::CPU(){}
+CPU::CPU()
+{
+    alu = ALU(alu);
+}
 
 void CPU::create_machine_code(const std::string& filename)
 {
@@ -25,9 +28,12 @@ void CPU::load_program()
         decode(current);
         
         // Tap registers stepwise
-        Utils::logU16("IR", IREG); 
-        Utils::logU16("PC", mmu.tapU16(PC));
+        Utils::logU8("A", mmu.tapU8(A));
+        Utils::logU8("F", mmu.tapU8(F));
+        Utils::logU8("B", mmu.tapU8(B));
         Utils::logU8("C", mmu.tapU8(C));
+        Utils::logU8("D", mmu.tapU8(D));
+        Utils::logU8("E", mmu.tapU8(E));
         Utils::logU8("H", mmu.tapU8(H));
         Utils::logU8("L", mmu.tapU8(L));
         Utils::logHEX(current);
@@ -94,8 +100,28 @@ void CPU::decode(const HEX& hex)
         case 0x2B: mmu.dcx(HL); break;
         case 0x3B: mmu.dcx(SP); break;
         
+        // Comparators
+        case 0xB8: alu.cmp(B); break;
+        case 0xB9: alu.cmp(C); break;
+        case 0xBA: alu.cmp(D); break;
+        case 0xBB: alu.cmp(E); break; 
+        case 0xBC: alu.cmp(H); break;
+        case 0xBD: alu.cmp(L); break;
+        // case 0xBE: alu.cmp(M); break;
+        case 0xBF: alu.cmp(A); break;
+
+        // Logic
+        case 0xE6: alu.ani(hex.h8[1]); break;
+        case 0xEE: alu.xri(hex.h8[1]); break;
+        case 0xF6: alu.ori(hex.h8[1]); break;
+        case 0xFE: alu.cpi(hex.h8[1]); break;
+
         // Branching
         case 0xC3: jmp(h16); break; 
+        case 0xCA: jz(h16); break; 
+        case 0xC2: jnz(h16); break; 
+        case 0xDA: jc(h16); break; 
+        case 0xD2: jnc(h16); break; 
 
         default: break;
     }
@@ -104,4 +130,28 @@ void CPU::decode(const HEX& hex)
 void CPU::jmp(u16 address)
 {
     mmu.init_pc(address);
+}
+
+void CPU::jc(u16 address)
+{
+    if(mmu.tapU8(F) & HX_CARY != HX_CARY) mmu.init_pc(address);
+    else return;
+}
+
+void CPU::jnc(u16 address)
+{
+    if(mmu.tapU8(F) & HX_CARY != HX_CARY) mmu.init_pc(address);
+    else return;
+}
+
+void CPU::jz(u16 address)
+{
+    if(mmu.tapU8(F) & HX_ZERO == HX_ZERO) mmu.init_pc(address);
+    else return;
+}
+
+void CPU::jnz(u16 address)
+{
+    if(mmu.tapU8(F) & HX_ZERO != HX_ZERO) mmu.init_pc(address);
+    else return;
 }

@@ -15,6 +15,11 @@ u8 MMU::fetch_mem(u16 address)
     return mem.retreive(address);
 }
 
+void MMU::init_acc(const u16& value)
+{
+    rb.loadU16(AF, value); 
+}
+
 void MMU::init_pc(u16 loc)
 {
     rb.loadU16(PC, loc); 
@@ -24,7 +29,7 @@ u16 MMU::load_pc()
 {
     inx(PC);
     return tapU16(PC);
-}  
+}
 
 void MMU::lda(u16 value)
 {   

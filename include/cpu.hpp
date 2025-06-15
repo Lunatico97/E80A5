@@ -1,3 +1,4 @@
+#include <alu.hpp>
 #include <mmu.hpp>
 #include <assembler.hpp>
 
@@ -15,10 +16,15 @@ class CPU
         void decode(const HEX& hex);
 
         // Branching
-        void jmp(u16 value);
+        void jmp(u16 address);
+        void jc(u16 address);
+        void jz(u16 address);
+        void jnc(u16 address);
+        void jnz(u16 address);
 
         Assembler asmb;
         MMU mmu;
+        ALU alu;
         u16 IREG;
 };
 

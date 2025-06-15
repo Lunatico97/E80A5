@@ -1,0 +1,7 @@
+     ORG 2000H
+     MVI A, 00H;
+     MVI B, 0AH;
+LOOP:INR A
+     CMP B
+     JNZ LOOP; It is a 10 step-down counter !
+     HLT; This counter can finally stop !

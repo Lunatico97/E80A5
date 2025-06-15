@@ -1,4 +1,4 @@
-#include <registers.hpp>
+#include <mmu.hpp>
 
 #ifndef _ALU_H_
 #define _ALU_H_
@@ -13,6 +13,7 @@ class ALU
 {
     public:
         ALU();
+        ALU(MMU& mmu);
 
         // Arithmetic Operations
         void add(REG r);
@@ -47,11 +48,12 @@ class ALU
 
     private:
         u8 ACC, TEMP, SF; // [S Z x AC x P x CY]
+        MMU mmu;
 
         // Registers
-        void fetch(Registers &rb);
-        void fetch(Registers& rb, REG r);
-        void load(Registers& rb);
+        void fetch(u8 value);
+        void fetch(REG r);
+        void load();
 };
 
 #endif
