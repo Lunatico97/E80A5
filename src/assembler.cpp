@@ -42,13 +42,13 @@ u16 Assembler::assemble(MMU& mmu, const std::string& filename)
                         line.replace(0, pos+1, "");
                     }
                 }
-                Utils::logU16("CT", counter);
+                // Utils::logU16("CT", counter);
                 HEX hex = parseToMachineCode(line);
                 for(int i=0; i<IL_MAP[hex.h8[0]]; i++)
                 {
                     mmu.load_mem(counter++, hex.h8[i]);
                 }
-                Utils::logHEX(hex);
+                // Utils::logHEX(hex);
             }            
         }
     }
