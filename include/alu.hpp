@@ -15,6 +15,9 @@ class ALU
         ALU();
         ALU(MMU& mmu);
 
+        // Flags
+        void update_flags();
+
         // Arithmetic Operations
         void add(REG r);
         void adc(REG r);
@@ -48,7 +51,7 @@ class ALU
 
     private:
         u8 ACC, TEMP, SF; // [S Z x AC x P x CY]
-        MMU mmu;
+        MMU& mmu;
 
         // Registers
         void fetch(u8 value);

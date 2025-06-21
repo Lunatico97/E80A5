@@ -1,9 +1,6 @@
 #include <cpu.hpp>
 
-CPU::CPU()
-{
-    alu = ALU(alu);
-}
+CPU::CPU(): mmu(), alu(mmu) {}
 
 void CPU::create_machine_code(const std::string& filename)
 {
@@ -109,6 +106,12 @@ void CPU::decode(const HEX& hex)
         case 0xBD: alu.cmp(L); break;
         // case 0xBE: alu.cmp(M); break;
         case 0xBF: alu.cmp(A); break;
+
+        // Arithmetic
+        case 0xC6: alu.adi(hex.h8[1]); break;
+        // case 0xCE: alu.aci(hex.h8[1]); break;
+        case 0xD6: alu.sui(hex.h8[1]); break;
+        // case 0xDE: alu.sbi(hex.h8[1]); break;
 
         // Logic
         case 0xE6: alu.ani(hex.h8[1]); break;
