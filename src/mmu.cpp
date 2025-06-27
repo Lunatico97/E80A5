@@ -15,6 +15,20 @@ u8 MMU::fetch_mem(u16 address)
     return mem.retreive(address);
 }
 
+void MMU::push(OFF o)
+{
+    mem.store(rb.fetchU16(SP), rb.fetchU8(o, 1));
+    mem.store(rb.fetchU16(SP)+0x0001, rb.fetchU8(o));
+    rb.loadU16(SP, rb.fetchU16(SP)+0x0001);
+}
+
+void MMU::pop(OFF o)
+{
+    rb.loadU8(o, mem.retreive(rb.fetchU16(SP)));
+    rb.loadU8(o, mem.retreive(rb.fetchU16(SP)-0x0001), 1);
+    rb.loadU16(SP, rb.fetchU16(SP)-0x0001);
+}
+
 void MMU::init_acc(const u16& value)
 {
     rb.loadU16(AF, value); 
@@ -29,7 +43,7 @@ u16 MMU::load_pc()
 {
     inx(PC);
     return tapU16(PC);
-}
+}  
 
 void MMU::lda(u16 value)
 {   
@@ -68,14 +82,14 @@ void MMU::lxi(REG r, u16 value)
 
 void MMU::lhld(u16 value)
 {
-    rb.loadU8(HL, mem.retreive(value+1));
+    rb.loadU8(HL, mem.retreive(value+0x0001));
     rb.loadU8(HL, mem.retreive(value), 1);
 }
 
 void MMU::shld(u16 value)
 {
     mem.store(value, rb.fetchU8(HL, 1));
-    mem.store(value+1, rb.fetchU8(HL));
+    mem.store(value+0x0001, rb.fetchU8(HL));
 }
 
 void MMU::xchg()
@@ -85,6 +99,11 @@ void MMU::xchg()
     rb.loadU16(DE, rb.fetchU16(WZ));
 }
 
+void MMU::pchl()
+{
+    rb.loadU16(PC, rb.fetchU16(HL));
+}
+
 void MMU::sphl()
 {
     rb.loadU16(SP, rb.fetchU16(HL));
@@ -92,8 +111,9 @@ void MMU::sphl()
 
 void MMU::xthl()
 {
-    // load L to [SP]
-    // load H to [SP+1]
+    rb.loadU16(SP, rb.fetchU16(HL));
+    mem.store(rb.fetchU16(SP), rb.fetchU8(HL, 1));
+    mem.store(rb.fetchU16(SP)+0x0001, rb.fetchU8(HL));
 }
 
 u8 MMU::tapU8(REG r)

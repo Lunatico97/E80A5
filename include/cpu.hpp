@@ -9,18 +9,24 @@ class CPU
 {
     public:
         CPU();
-        void create_machine_code(const std::string& filename);
+        void create_machine_code(const char* filename);
         void load_program();
 
     private:
         void decode(const HEX& hex);
 
-        // Branching
+        // Branching (Jumps)
         void jmp(u16 address);
         void jc(u16 address);
         void jz(u16 address);
         void jnc(u16 address);
         void jnz(u16 address);
+
+        // Branching (Calls)
+        void call(u16 address);
+
+        // Branching (Returns)
+        void ret();
 
         Assembler asmb;
         MMU mmu;

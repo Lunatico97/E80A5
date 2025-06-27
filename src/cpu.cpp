@@ -2,7 +2,7 @@
 
 CPU::CPU(): mmu(), alu(mmu) {}
 
-void CPU::create_machine_code(const std::string& filename)
+void CPU::create_machine_code(const char* filename)
 {
     IREG = asmb.assemble(mmu, filename);
 }
@@ -16,15 +16,14 @@ void CPU::load_program()
 
     while(1)
     {
-        u8 l = IL_MAP[mmu.fetch_mem(IREG)]-1;
-        mmu.init_pc(IREG+l);
-        for(int i=0; i<=l; i++)
-        {
-            current.h8[i] = mmu.fetch_mem(IREG+i); 
-        }
-        decode(current);
-        
+        u8 l = IL_MAP[mmu.fetch_mem(IREG)];
+        mmu.init_pc(IREG + l - 1);
+
         // Tap registers stepwise
+        Utils::logU16("IR", IREG);
+        Utils::logU16("PC", mmu.tapU16(PC));
+        Utils::logU16("SP", mmu.tapU16(SP));
+        Utils::logU8("Length", l);
         Utils::logU8("A", mmu.tapU8(A));
         Utils::logU8("F", mmu.tapU8(F));
         Utils::logU8("B", mmu.tapU8(B));
@@ -35,6 +34,13 @@ void CPU::load_program()
         Utils::logU8("L", mmu.tapU8(L));
         Utils::logHEX(current);
 
+        for(int i=0; i<l; i++)
+        {
+            current.h8[i] = mmu.fetch_mem(IREG+i); 
+        }
+
+        decode(current);
+        
         IREG = mmu.load_pc();
     }    
 }
@@ -60,6 +66,7 @@ void CPU::decode(const HEX& hex)
         case 0x2A: mmu.lhld(h16); break;
         case 0x22: mmu.shld(h16); break;
         case 0xEB: mmu.xchg(); break;
+        case 0xE9: mmu.pchl(); break;
         case 0xF9: mmu.sphl(); break;
         case 0xE3: mmu.xthl(); break;
         case 0x06: mmu.mvi(B, hex.h8[1]); break;
@@ -119,12 +126,28 @@ void CPU::decode(const HEX& hex)
         case 0xF6: alu.ori(hex.h8[1]); break;
         case 0xFE: alu.cpi(hex.h8[1]); break;
 
-        // Branching
+        // Branching (Jumps)
         case 0xC3: jmp(h16); break; 
         case 0xCA: jz(h16); break; 
         case 0xC2: jnz(h16); break; 
         case 0xDA: jc(h16); break; 
         case 0xD2: jnc(h16); break; 
+
+        // Branching (Calls)
+        case 0xCD: call(h16); break;
+
+        // Branching (Returns)
+        case 0xC9: ret(); break;
+
+        // Stack
+        case 0xC1: mmu.pop(BC); break;
+        case 0xC5: mmu.push(BC); break;
+        case 0xD1: mmu.pop(DE); break;
+        case 0xD5: mmu.push(DE); break;
+        case 0xE1: mmu.pop(HL); break;
+        case 0xE5: mmu.push(HL); break;
+        case 0xF1: mmu.pop(AF); break;
+        case 0xF5: mmu.push(AF); break;
 
         default: break;
     }
@@ -157,4 +180,15 @@ void CPU::jnz(u16 address)
 {
     if(mmu.tapU8(F) & HX_ZERO != HX_ZERO) mmu.init_pc(address);
     else return;
+}
+
+void CPU::call(u16 address)
+{
+    mmu.push(PC);
+    mmu.init_pc(address);
+}
+
+void CPU::ret()
+{
+    mmu.pop(PC);
 }
