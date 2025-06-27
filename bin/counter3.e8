@@ -1,0 +1,11 @@
+        ORG 2000H
+        LXI SP, 3000H
+        MVI A, 00H
+        MVI B, 0AH
+        CALL COUNTER; Call the subroutine
+        HLT
+
+COUNTER:ADI 01H
+        CMP B
+        JZ COUNTER
+        RET; Need to return back to main routine !

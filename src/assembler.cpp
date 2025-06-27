@@ -5,11 +5,35 @@ Assembler::Assembler()
     loadOpcodeLookup();
 }
 
-u16 Assembler::assemble(MMU& mmu, const std::string& filename)
+u16 Assembler::assemble(MMU& mmu, const char* filename)
+{    
+    const std::string proc_str = preprocess(Utils::readTextFromFile(filename));
+    std::stringstream ss(proc_str);
+    u16 counter = origin;
+    std::string line;
+
+    while (std::getline(ss, line)) 
+    {
+        Utils::logU16("CT", counter);
+        HEX hex = parseToMachineCode(line);
+
+        for(int i=0; i<IL_MAP[hex.h8[0]]; i++)
+        {
+            mmu.load_mem(counter++, hex.h8[i]);
+        }
+
+        Utils::logHEX(hex);
+    }
+
+    return origin;
+}
+
+std::string Assembler::preprocess(const std::string& raw_str)
 {
-    u16 origin = 0x0000;
     u16 counter = 0x0000;
-    std::stringstream ss(Utils::readTextFromFile(filename.c_str()));
+
+    std::stringstream ss(raw_str);
+    std::stringstream buffer;
     std::string line;
 
     while (std::getline(ss, line)) 
@@ -22,10 +46,10 @@ u16 Assembler::assemble(MMU& mmu, const std::string& filename)
         line = Utils::trim(line);
         if (!line.empty()) 
         {
-            if (counter == 0 && line.rfind("ORG ", 0) == 0) 
+            if (counter == 0x0000 && line.rfind("ORG ", 0) == 0) 
             { 
                 origin = parseHexStrToVal(line.substr(4));
-                counter = origin; 
+                counter = origin;
             }
             else
             {
@@ -42,18 +66,14 @@ u16 Assembler::assemble(MMU& mmu, const std::string& filename)
                         line.replace(0, pos+1, "");
                     }
                 }
-                // Utils::logU16("CT", counter);
-                HEX hex = parseToMachineCode(line);
-                for(int i=0; i<IL_MAP[hex.h8[0]]; i++)
-                {
-                    mmu.load_mem(counter++, hex.h8[i]);
-                }
-                // Utils::logHEX(hex);
-            }            
+
+                counter += get_instr_len(line);
+                buffer << line + "\n";
+            }
         }
     }
 
-    return origin;
+    return buffer.str();
 }
 
 OPCODE Assembler::parseMnemonicToOpcode(const std::string& hexstr)
@@ -78,7 +98,32 @@ u16 Assembler::parseHexStrToVal(const std::string& hexstr)
     return value;
 }
 
-HEX Assembler::parseToMachineCode(const std::string& instruction) {
+
+
+u8 Assembler::get_instr_len(const std::string& instruction)
+{
+    const char* mnemonic = instruction.c_str();
+    OPCODE opcode = parseMnemonicToOpcode(mnemonic);
+
+    // Parse mnemonics
+    if(opcode.bytes != 1)
+    {
+        std::size_t pos = instruction.find(',');
+        if(pos == std::string::npos) pos = instruction.find(' ');
+        
+        if(pos != std::string::npos)
+        {
+            mnemonic = instruction.substr(0, pos).c_str();
+            opcode = parseMnemonicToOpcode(mnemonic);
+            if(opcode.value == 0xFF) throw(std::runtime_error("Invalid mnemonic: " + instruction));
+        }
+    }
+
+    return opcode.bytes;
+}
+
+HEX Assembler::parseToMachineCode(const std::string& instruction) 
+{
     const char* mnemonic = instruction.c_str();
     OPCODE opcode = parseMnemonicToOpcode(mnemonic);
     std::string operand_part;
@@ -87,23 +132,17 @@ HEX Assembler::parseToMachineCode(const std::string& instruction) {
     if(opcode.bytes != 1)
     {
         std::size_t pos = instruction.find(',');
+        if(pos == std::string::npos)
+        {
+            pos = instruction.find(' ');
+        }        
+        
         if(pos != std::string::npos)
         {
             mnemonic = instruction.substr(0, pos).c_str();
             operand_part = instruction.substr(pos+1, instruction.length());
             opcode = parseMnemonicToOpcode(mnemonic);
             if(opcode.value == 0xFF) throw(std::runtime_error("Invalid mnemonic: " + instruction));
-        }
-        else
-        {
-            pos = instruction.find(' ');
-            if(pos != std::string::npos)
-            {
-                mnemonic = instruction.substr(0, pos).c_str();
-                operand_part = instruction.substr(pos+1, instruction.length());
-                opcode = parseMnemonicToOpcode(mnemonic);
-                if(opcode.value == 0xFF) throw(std::runtime_error("Invalid mnemonic: " + instruction));
-            }
         }
 
         // Parse operands

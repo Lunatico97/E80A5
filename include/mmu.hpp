@@ -16,6 +16,10 @@ class MMU
         void init_pc(u16 value);
         u16 load_pc();
 
+        // Stack Pointer
+        void push(OFF o);
+        void pop(OFF o);
+
         // Accumulator
         void lda(u16 value);
         void sta(u16 value);
@@ -37,6 +41,7 @@ class MMU
 
         // Special
         void xchg();
+        void pchl();
         void sphl();
         void xthl();
 

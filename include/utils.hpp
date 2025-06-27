@@ -28,6 +28,21 @@ namespace Utils
         }
     }
 
+    static int writeTextToFile(const char* filepath, const std::string& input_str) {
+        std::ofstream outputFile(filepath);
+        if (outputFile.is_open()) 
+        {
+            outputFile << input_str;
+            outputFile.close();
+            return 1;
+        } 
+        else 
+        {
+            std::cerr << "Error: Could not open file '" << filepath << "'" << std::endl;
+            return -1;
+        }
+    }
+
     static std::string trim(const std::string& str) {
         size_t first = str.find_first_not_of(" \t\n\r\f\v");
         if (std::string::npos == first) 
