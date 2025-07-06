@@ -1,38 +1,40 @@
 #include <cpu.hpp>
 
-CPU::CPU(): mmu(), alu(mmu) {}
+CPU::CPU(): mmu(), alu(mmu), gui(mmu) {}
+CPU::~CPU() {}
 
 void CPU::create_machine_code(const char* filename)
 {
     IREG = asmb.assemble(mmu, filename);
+    _halt = false;
 }
 
 void CPU::load_program()
 {
     HEX current;
     // Tap origin
-    Utils::logU16("ORG", IREG);
+    std::cout << Utils::logU16("ORG", IREG);
     std::cout << "\n";
 
-    while(1)
+    while(!_halt)
     {
         u8 l = IL_MAP[mmu.fetch_mem(IREG)];
         mmu.init_pc(IREG + l - 1);
 
         // Tap registers stepwise
-        Utils::logU16("IR", IREG);
-        Utils::logU16("PC", mmu.tapU16(PC));
-        Utils::logU16("SP", mmu.tapU16(SP));
-        Utils::logU8("Length", l);
-        Utils::logU8("A", mmu.tapU8(A));
-        Utils::logU8("F", mmu.tapU8(F));
-        Utils::logU8("B", mmu.tapU8(B));
-        Utils::logU8("C", mmu.tapU8(C));
-        Utils::logU8("D", mmu.tapU8(D));
-        Utils::logU8("E", mmu.tapU8(E));
-        Utils::logU8("H", mmu.tapU8(H));
-        Utils::logU8("L", mmu.tapU8(L));
-        Utils::logHEX(current);
+        // std::cout << Utils::logU16("IR", IREG);
+        // std::cout << Utils::logU16("PC", mmu.tapU16(PC));
+        // std::cout << Utils::logU16("SP", mmu.tapU16(SP));
+        // std::cout << Utils::logU8("Length", l);
+        // std::cout << Utils::logU8("A", mmu.tapU8(A));
+        // std::cout << Utils::logU8("F", mmu.tapU8(F));
+        // std::cout << Utils::logU8("B", mmu.tapU8(B));
+        // std::cout << Utils::logU8("C", mmu.tapU8(C));
+        // std::cout << Utils::logU8("D", mmu.tapU8(D));
+        // std::cout << Utils::logU8("E", mmu.tapU8(E));
+        // std::cout << Utils::logU8("H", mmu.tapU8(H));
+        // std::cout << Utils::logU8("L", mmu.tapU8(L));
+        // std::cout << Utils::logHEX(current);
 
         for(int i=0; i<l; i++)
         {
@@ -42,7 +44,9 @@ void CPU::load_program()
         decode(current);
         
         IREG = mmu.load_pc();
-    }    
+    }
+
+    gui.run_gui();
 }
 
 void CPU::decode(const HEX& hex)
@@ -52,7 +56,7 @@ void CPU::decode(const HEX& hex)
     {
         // Transfers
         case 0x00: break; // NOP
-        case 0x76: exit(0); break; // HLT
+        case 0x76: _halt = true; break; // HLT
         case 0x3A: mmu.lda(h16); break;
         case 0x32: mmu.sta(h16); break;
         case 0x0A: mmu.ldax(B); break;

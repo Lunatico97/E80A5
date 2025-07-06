@@ -6,7 +6,7 @@
 enum OFF
 {
     AF = 0,
-    BC, DE, HL, SP, PC, ST, WZ
+    BC, DE, HL, SP, PC, WZ
 };
 
 enum REG
@@ -40,7 +40,7 @@ class Registers
 
     private:
         // Register Bank
-        u16 BANK[8];
+        u16 BANK[7];
 };
 
 #endif
