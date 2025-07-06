@@ -4,7 +4,7 @@ Registers::Registers() {}
 
 void Registers::init()
 {
-    for(int i=0; i<8; i++)
+    for(int i=0; i<7; i++)
     {
         BANK[i] = 0x0000;
     }

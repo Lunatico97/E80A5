@@ -1,6 +1,14 @@
 #include <iostream>
 #include <cpu.hpp>
 
+/*
+    Title: E80A5
+    Author: Diwas Adhikari
+    Email: lunaticoda123@gmail.com
+    Description: My take on emulating Intel 8085 !
+    [ The project also contains a two pass 8085 assembler and GUI interface ]
+*/
+
 int main(int argc, char *argv[])
 {
     CPU *cpu = nullptr;

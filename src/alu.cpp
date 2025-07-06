@@ -9,12 +9,19 @@ void ALU::update_flags()
     for(u8 i=0x00; i<0x08; i++)
     {
         bit = (ACC & (0x01 << i)) >> i;
-        if(i == 0x07 && bit == 0x01) SF |= HX_SIGN; 
         if(bit == 0x01) parity = !parity;
+        // Set or reset sign flag
+        if(i == 0x07 && bit == 0x01) SF |= HX_SIGN;
+        else SF &= ~HX_SIGN; 
     }
 
+    // Set or reset zero flag
     if(ACC == 0x00) SF |= HX_ZERO;
+    else SF &= ~HX_ZERO;
+
+    // Set or reset parity flag
     if(parity) SF |= HX_PARY;
+    else SF &= ~HX_PARY;
 }
 
 void ALU::add(REG r)
