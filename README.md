@@ -3,3 +3,5 @@
 - Two pass assembler
 - GUI using my wrapper SDL2 class that I use for graphic callbacks. 
   [ Check this out: https://github.com/Lunatico97/TopDownScrollerUsingCPP ]
+
+![Preliminary Image](snip.png)
